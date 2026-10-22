@@ -30,8 +30,17 @@ export function barsFrom(start: number, rows: Ohlc[]): Bar[] {
   }));
 }
 
-/** Engine over `rows`, cursor on row 0 (the context bar), NQ unless told otherwise. */
+/**
+ * Engine over `rows` with the cursor on row 0 (the context bar), NQ unless told otherwise.
+ * A flat tail bar is appended so the last row is not the end of data (end_of_data would close open positions).
+ * Use engineExact when the end of data matters.
+ */
 export function engineOver(rows: Ohlc[], settings: Partial<SessionSettings> = {}, contract: ContractSpec = NQ, start: number = T0): ReplayEngine {
+  const lastClose = rows[rows.length - 1]![3];
+  return engineExact([...rows, [lastClose, lastClose, lastClose, lastClose]], settings, contract, start);
+}
+
+export function engineExact(rows: Ohlc[], settings: Partial<SessionSettings> = {}, contract: ContractSpec = NQ, start: number = T0): ReplayEngine {
   return new ReplayEngine({ bars: barsFrom(start, rows), contract, startTime: start, settings });
 }
 

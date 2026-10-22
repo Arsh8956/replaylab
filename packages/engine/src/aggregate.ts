@@ -13,7 +13,6 @@ export class CandleSeries {
 
   constructor(readonly tf: Timeframe) {}
 
-  /** Number of 1m bars consumed is the caller's business; this only sees what it is given. */
   push(bar: Bar): void {
     if (!(bar.time > this.lastTime)) throw new EngineError('bars must be sorted with strictly increasing times');
     this.lastTime = bar.time;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EngineError } from '../src/errors';
-import { bucketStart, etParts, tradingDay, tradingDayStart, zonedToUnix } from '../src/time';
+import { addDays, bucketStart, etParts, tradingDay, tradingDayStart, weekdayOfDay, zonedToUnix } from '../src/time';
 import { utc } from './helpers';
 
 describe('bucketStart: epoch aligned timeframes', () => {
@@ -157,5 +157,21 @@ describe('zonedToUnix', () => {
   });
   it('throws EngineError on an unknown timezone', () => {
     expect(() => zonedToUnix({ year: 2024, month: 1, day: 2 }, 'Mars/Olympus')).toThrow(EngineError);
+  });
+});
+
+describe('day label helpers', () => {
+  it('addDays crosses month, year and leap day', () => {
+    expect(addDays('2024-02-28', 2)).toBe('2024-03-01');
+    expect(addDays('2024-12-31', 1)).toBe('2025-01-01');
+    expect(addDays('2024-03-01', -1)).toBe('2024-02-29');
+  });
+  it('weekdayOfDay: 0 = Sunday', () => {
+    expect(weekdayOfDay('2024-01-07')).toBe(0);
+    expect(weekdayOfDay('2024-01-08')).toBe(1);
+    expect(weekdayOfDay('2024-01-06')).toBe(6);
+  });
+  it('rejects a malformed day', () => {
+    expect(() => tradingDayStart('2024-1-2')).toThrow(EngineError);
   });
 });

@@ -107,6 +107,30 @@ describe('aggregate: 4h and 1D anchored at 18:00 ET across the spring DST switch
   });
 });
 
+describe('aggregate: 4h and 1D across the fall back DST switch (Sun 2024-11-03, EDT to EST)', () => {
+  const at = (iso: string, o: number, h: number, l: number, cl: number, v: number): Bar => c(utc(iso), o, h, l, cl, v);
+  const week: Bar[] = [
+    at('2024-11-01T20:59:00Z', 100, 105, 98, 104, 1), // Fri 16:59 EDT
+    at('2024-11-03T23:00:00Z', 110, 112, 109, 111, 2), // Sun 18:00 EST, opens Monday's day
+    at('2024-11-04T14:30:00Z', 111, 120, 110, 119, 3), // Mon 09:30 EST
+    at('2024-11-04T21:59:00Z', 119, 121, 118, 120, 4), // Mon 16:59 EST
+  ];
+  it('1D starts move from 22:00Z (EDT) to 23:00Z (EST)', () => {
+    expect(aggregate(week, '1D')).toEqual([
+      c(utc('2024-10-31T22:00:00Z'), 100, 105, 98, 104, 1), // Thu 18:00 EDT
+      c(utc('2024-11-03T23:00:00Z'), 110, 121, 109, 120, 9),
+    ]);
+  });
+  it('4h buckets', () => {
+    expect(aggregate(week, '4h')).toEqual([
+      c(utc('2024-11-01T18:00:00Z'), 100, 105, 98, 104, 1), // Fri 14:00 EDT
+      c(utc('2024-11-03T23:00:00Z'), 110, 112, 109, 111, 2), // Sun 18:00 EST
+      c(utc('2024-11-04T11:00:00Z'), 111, 120, 110, 119, 3), // Mon 06:00 EST holds 09:30
+      c(utc('2024-11-04T19:00:00Z'), 119, 121, 118, 120, 4), // Mon 14:00 EST
+    ]);
+  });
+});
+
 describe('CandleSeries (incremental builder)', () => {
   it('keeps completed candles and exposes the last one as it grows', () => {
     const s = new CandleSeries('5m');

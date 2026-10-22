@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CONTRACTS } from '../src/contracts';
 import type { ContractSpec, SessionSettings } from '../src/types';
-import { T0, engineOver, type Ohlc } from './helpers';
+import { T0, engineExact, engineOver, type Ohlc } from './helpers';
 
 // NQ: tick 0.25, tick value $5.00, so 1 point = 4 ticks = $20.00. Slippage of 2 ticks = 0.5 points.
 // Every test hand checks its numbers in the comments. Row 0 is the context bar the cursor starts on.
@@ -545,7 +545,7 @@ describe('slippage applies to market, stop, SL and manual only', () => {
     expect(e.trades[0]).toMatchObject({ exitReason: 'manual', exitPrice: 21004.5, pnlTicks: 16, grossUsd: 80 });
   });
   it('end of data closes at the close with no slippage', () => {
-    const e = engineOver([R0, [21001, 21004, 20998, 21003]], SLIP2);
+    const e = engineExact([R0, [21001, 21004, 20998, 21003]], SLIP2);
     e.placeOrder({ side: 'long', type: 'market', qty: 1 });
     e.step();
     // entry 21001.5, exit at close 21003: (21003-21001.5)/0.25 = 6 ticks
@@ -556,7 +556,7 @@ describe('slippage applies to market, stop, SL and manual only', () => {
     expect(e.settings.slippageTicks).toBe(0);
     e.placeOrder({ side: 'long', type: 'market', qty: 1 });
     e.step();
-    expect(e.trades[0]!.entryPrice).toBe(21001);
+    expect(e.position?.entryPrice).toBe(21001);
   });
 });
 
@@ -592,7 +592,7 @@ describe('fees: commissionPerSide * qty * 2, USD rounded to cents', () => {
 
 describe('step 5: end_of_data', () => {
   it('closes an open position at the last bar close', () => {
-    const e = engineOver([R0, [21001, 21004, 20998, 21003], [21005, 21008, 21002, 21006]]);
+    const e = engineExact([R0, [21001, 21004, 20998, 21003], [21005, 21008, 21002, 21006]]);
     e.placeOrder({ side: 'long', type: 'market', qty: 1 });
     e.step();
     expect(e.isAtEnd()).toBe(false);
@@ -605,7 +605,7 @@ describe('step 5: end_of_data', () => {
     expect(e.isAtEnd()).toBe(true);
   });
   it('an entry filled on the very last bar is closed on that bar', () => {
-    const e = engineOver([R0, [21001, 21004, 20998, 21003]]);
+    const e = engineExact([R0, [21001, 21004, 20998, 21003]]);
     e.placeOrder({ side: 'long', type: 'market', qty: 1 });
     const ev = e.step();
     expect(ev.map((x) => x.type)).toEqual(['order_filled', 'position_opened', 'trade_closed']);
@@ -613,12 +613,13 @@ describe('step 5: end_of_data', () => {
     expect(e.trades[0]).toMatchObject({ exitReason: 'end_of_data', pnlTicks: 8, grossUsd: 40, holdSeconds: 0, maeTicks: 12, mfeTicks: 12 });
   });
   it('a stop loss on the last bar is a stop_loss, not end_of_data', () => {
-    const e = inLong([21001, 21003, 20980, 20995]);
-    e.step();
+    const e = engineExact([R0, ENTRY_BAR, [21001, 21003, 20980, 20995]]);
+    e.placeOrder({ side: 'long', type: 'market', qty: 1, stopLoss: 20990, takeProfit: 21020 });
+    e.step(2);
     expect(e.trades[0]!.exitReason).toBe('stop_loss');
   });
   it('a working order just stays working', () => {
-    const e = engineOver([R0, [21001, 21004, 20998, 21003], [21005, 21008, 21002, 21006]]);
+    const e = engineExact([R0, [21001, 21004, 20998, 21003], [21005, 21008, 21002, 21006]]);
     e.placeOrder({ side: 'long', type: 'limit', qty: 1, price: 20900 });
     expect(e.step(2)).toEqual([]);
     expect(e.isAtEnd()).toBe(true);
@@ -626,7 +627,7 @@ describe('step 5: end_of_data', () => {
     expect(e.trades).toEqual([]);
   });
   it('stepping at the end of data does nothing', () => {
-    const e = engineOver([R0, [21001, 21004, 20998, 21003]]);
+    const e = engineExact([R0, [21001, 21004, 20998, 21003]]);
     e.step();
     const t = e.cursorTime;
     expect(e.step()).toEqual([]);
