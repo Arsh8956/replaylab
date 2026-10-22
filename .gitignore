@@ -12,3 +12,5 @@ __pycache__/
 *.egg-info/
 data/bars/
 .DS_Store
+data/spend.json
+data/*.db

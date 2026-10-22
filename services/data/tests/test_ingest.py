@@ -7,8 +7,8 @@ from decimal import Decimal
 import databento
 import pandas as pd
 import pytest
-from helpers import FakeHistorical, default_rows, epoch, make_dbn_store, write_spend
 
+from helpers import FakeHistorical, default_rows, epoch, make_dbn_store, write_spend
 from replaylab_data import databento_ingest as ing
 from replaylab_data import store
 from replaylab_data.roots import RootError
@@ -47,7 +47,12 @@ def test_conversion_from_a_real_dbnstore_matches_the_bar_type():
 
     assert list(bars.columns) == ["time", "open", "high", "low", "close", "volume"]
     assert [str(t) for t in bars.dtypes] == [
-        "int64", "float64", "float64", "float64", "float64", "int64"
+        "int64",
+        "float64",
+        "float64",
+        "float64",
+        "float64",
+        "int64",
     ]
     # time = unix seconds of the bar OPEN (ts_event is the inclusive start of the interval)
     assert list(bars["time"]) == [r[0] for r in rows]
@@ -194,7 +199,7 @@ def test_cap_uses_the_cap_option(data_dir):
 
 
 def test_default_cap_is_100_dollars_under_the_free_credits():
-    assert DEFAULT_CAP == Decimal("100.00")
+    assert Decimal("100.00") == DEFAULT_CAP
 
 
 def test_dry_run_warns_when_yes_would_be_refused(data_dir):

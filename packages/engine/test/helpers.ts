@@ -1,5 +1,6 @@
 import { CONTRACTS } from '../src/contracts';
-import type { Bar, ContractSpec } from '../src/types';
+import { ReplayEngine } from '../src/engine';
+import type { Bar, ContractSpec, SessionSettings } from '../src/types';
 
 /** ISO string (with Z) to unix seconds. Tests only. */
 export function utc(iso: string): number {
@@ -27,4 +28,42 @@ export function barsFrom(start: number, rows: Ohlc[]): Bar[] {
     close,
     volume: volume ?? 100,
   }));
+}
+
+/** Engine over `rows`, cursor on row 0 (the context bar), NQ unless told otherwise. */
+export function engineOver(rows: Ohlc[], settings: Partial<SessionSettings> = {}, contract: ContractSpec = NQ, start: number = T0): ReplayEngine {
+  return new ReplayEngine({ bars: barsFrom(start, rows), contract, startTime: start, settings });
+}
+
+/** Small deterministic LCG so engine tests do not depend on the synthetic generator. */
+export function lcg(seed: number): () => number {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 0x100000000;
+  };
+}
+
+/** Random walk of valid 1m NQ bars on the 0.25 grid. */
+export function walkBars(n: number, seed: number, start: number = T0, startPrice = 21000): Bar[] {
+  const rand = lcg(seed);
+  const out: Bar[] = [];
+  let price = startPrice;
+  for (let i = 0; i < n; i++) {
+    const open = price;
+    const step = Math.round((rand() - 0.5) * 24) * 0.25; // up to +-3 points
+    const close = Math.max(100, open + step);
+    const high = close > open ? close : open;
+    const low = close > open ? open : close;
+    out.push({
+      time: start + i * 60,
+      open,
+      high: high + Math.round(rand() * 8) * 0.25,
+      low: low - Math.round(rand() * 8) * 0.25,
+      close,
+      volume: 50 + Math.floor(rand() * 200),
+    });
+    price = close;
+  }
+  return out;
 }

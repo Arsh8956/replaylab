@@ -35,6 +35,8 @@ addopts = "-q"
 filterwarnings = [
   # databento 0.88 calls DataFrame.set_index(inplace=True), which pandas 3.1 warns about
   "ignore:The inplace keyword in DataFrame.set_index",
+  # starlette 1.x prefers httpx2 for TestClient; the spec pins httpx in the dev extra
+  "ignore:Using `httpx` with `starlette.testclient`",
 ]
 
 [tool.ruff]

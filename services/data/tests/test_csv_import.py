@@ -1,6 +1,6 @@
 import pytest
-from helpers import epoch
 
+from helpers import epoch
 from replaylab_data.csv_import import CsvImportError, parse_csv_file, parse_csv_text
 
 HEADER = "time,open,high,low,close,volume"
@@ -22,7 +22,12 @@ def test_canonical_file():
     assert list(result.bars["time"]) == [epoch("2024-01-02T14:30:00"), epoch("2024-01-02T14:31:00")]
     assert list(result.bars["close"]) == [16000.75, 16002.25]
     assert [str(t) for t in result.bars.dtypes] == [
-        "int64", "float64", "float64", "float64", "float64", "int64"
+        "int64",
+        "float64",
+        "float64",
+        "float64",
+        "float64",
+        "int64",
     ]
 
 
@@ -39,14 +44,16 @@ def test_canonical_file():
 )
 def test_flexible_headers(header):
     extra = ",ES,x" if header.endswith("ignored") else ""
-    result = parse_csv_text(
-        csv(f"2024-01-02T14:30:00Z,1,2,0.5,1.5,10{extra}", header=header)
-    )
+    result = parse_csv_text(csv(f"2024-01-02T14:30:00Z,1,2,0.5,1.5,10{extra}", header=header))
     assert result.errors == []
     assert len(result.bars) == 1
     assert result.bars.iloc[0].to_dict() == {
         "time": epoch("2024-01-02T14:30:00"),
-        "open": 1.0, "high": 2.0, "low": 0.5, "close": 1.5, "volume": 10,
+        "open": 1.0,
+        "high": 2.0,
+        "low": 0.5,
+        "close": 1.5,
+        "volume": 10,
     }
 
 
@@ -98,9 +105,7 @@ def test_tz_option_follows_dst():
 
 
 def test_explicit_offsets_win_over_tz():
-    result = parse_csv_text(
-        csv("2024-01-02T09:30:00-05:00,1,2,0.5,1.5,10"), tz="Asia/Tokyo"
-    )
+    result = parse_csv_text(csv("2024-01-02T09:30:00-05:00,1,2,0.5,1.5,10"), tz="Asia/Tokyo")
     assert result.bars["time"].iloc[0] == epoch("2024-01-02T14:30:00")
 
 

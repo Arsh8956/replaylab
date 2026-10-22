@@ -1,8 +1,8 @@
 import pandas as pd
 import pyarrow.parquet as pq
 import pytest
-from helpers import epoch, make_bars
 
+from helpers import epoch, make_bars
 from replaylab_data import store
 from replaylab_data.store import BAR_COLUMNS, StoreError
 
@@ -16,7 +16,12 @@ def test_write_creates_layout_and_exact_bar_schema(data_dir):
     schema = pq.read_schema(path)
     assert [f.name for f in schema] == BAR_COLUMNS
     assert [str(f.type) for f in schema] == [
-        "int64", "double", "double", "double", "double", "int64"
+        "int64",
+        "double",
+        "double",
+        "double",
+        "double",
+        "int64",
     ]
     assert summary.added == 5
     assert summary.replaced == 0
@@ -132,7 +137,12 @@ def test_normalize_casts_to_disk_dtypes():
     )
     out = store.normalize_bars(odd)
     assert [str(t) for t in out.dtypes] == [
-        "int64", "float64", "float64", "float64", "float64", "int64"
+        "int64",
+        "float64",
+        "float64",
+        "float64",
+        "float64",
+        "int64",
     ]
 
 
