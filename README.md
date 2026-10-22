@@ -9,11 +9,9 @@ Bar by bar replay backtesting for CME futures (NQ, MNQ, ES, MES and more), with 
 
 ## 1. Setup (once)
 
-1. Create a private GitHub repo `replaylab` on Arsh8956 and clone it.
-2. Unzip `replaylab-plan.zip` into it so `CLAUDE.md` sits at the repo root next to `.claude/` and `docs/`.
-3. Free installs: Git, Node.js 22+ (`node -v`), Python 3.11+ (`python3 --version`), VS Code (optional). Claude Code comes with a Claude Pro or Max subscription.
-4. `git add -A && git commit -m "plan: spec, team, research" && git push`
-5. Open Claude Code in the repo folder and run `/agents`. All 10 agents should be listed.
+1. Free installs: Git, Node.js 22+ (`node -v`), Python 3.11+ (`python3 --version`), VS Code (optional). Claude Code comes with a Claude Pro or Max subscription.
+2. `git clone https://github.com/Arsh8956/replaylab && cd replaylab`
+3. Run `claude` in that folder, then `/agents`. All 10 agents should be listed.
 
 ## 2. How the team runs
 
