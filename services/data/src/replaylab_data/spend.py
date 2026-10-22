@@ -36,7 +36,9 @@ def to_money(value: Any, *, round_up: bool = False) -> Decimal:
         raise SpendError(f"not a dollar amount: {value!r}") from exc
     if not amount.is_finite():
         raise SpendError(f"not a dollar amount: {value!r}")
-    return amount.quantize(_PLACES, rounding=ROUND_CEILING) if round_up else amount.quantize(_PLACES)
+    return (
+        amount.quantize(_PLACES, rounding=ROUND_CEILING) if round_up else amount.quantize(_PLACES)
+    )
 
 
 def fmt_usd(amount: Decimal) -> str:
@@ -132,6 +134,8 @@ class SpendLedger:
         """Take a reservation back out of the total (the request was rejected before any data)."""
         data = self._load()
         entry = data["entries"][index]
-        data["total_usd"] = float(max(Decimal(0), to_money(data["total_usd"]) - to_money(entry["cost_usd"])))
+        data["total_usd"] = float(
+            max(Decimal(0), to_money(data["total_usd"]) - to_money(entry["cost_usd"]))
+        )
         entry["status"] = status
         self._save(data)

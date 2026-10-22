@@ -243,8 +243,10 @@ def read_bars(data_dir: Path, root: str, start: int, end: int) -> pd.DataFrame:
         frames.append(normalize_bars(table.to_pandas()))
     if not frames:
         return empty_bars()
-    return pd.concat(frames, ignore_index=True).sort_values("time", kind="stable").reset_index(
-        drop=True
+    return (
+        pd.concat(frames, ignore_index=True)
+        .sort_values("time", kind="stable")
+        .reset_index(drop=True)
     )
 
 

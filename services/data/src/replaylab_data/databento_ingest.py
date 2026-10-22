@@ -171,9 +171,7 @@ def bars_from_dbn_frame(frame: pd.DataFrame) -> pd.DataFrame:
     `to_df()` form converts to the same bars.
     """
     if len(frame) == 0:
-        return normalize_bars(
-            pd.DataFrame({c: pd.Series(dtype="float64") for c in BAR_COLUMNS})
-        )
+        return normalize_bars(pd.DataFrame({c: pd.Series(dtype="float64") for c in BAR_COLUMNS}))
 
     index = frame.index
     if isinstance(index, pd.DatetimeIndex):
@@ -233,19 +231,25 @@ def run_ingest(
     echo(f"Databento {DATASET} {SCHEMA}, {req.symbol} (stype_in={STYPE_IN})")
     echo(f"  range      {req.start} to {req.end} inclusive (UTC)")
     echo(f"  estimate   {fmt_usd(estimate)}")
-    echo(f"  spent so far {fmt_usd(total)}, cap {fmt_usd(cap)}, "
-         f"after this {fmt_usd(check.projected)}")
+    echo(
+        f"  spent so far {fmt_usd(total)}, cap {fmt_usd(cap)}, "
+        f"after this {fmt_usd(check.projected)}"
+    )
 
     if not confirmed:
         if not check.allowed:
-            echo(f"  --yes would be REFUSED: {fmt_usd(check.projected)} is over the "
-                 f"{fmt_usd(cap)} cap.")
+            echo(
+                f"  --yes would be REFUSED: {fmt_usd(check.projected)} is over the "
+                f"{fmt_usd(cap)} cap."
+            )
         echo("Nothing downloaded. Re-run with --yes to download.")
         return IngestResult("estimate_only", estimate, total, cap)
 
     if not check.allowed:
-        echo(f"REFUSED: {fmt_usd(total)} spent + {fmt_usd(estimate)} estimate = "
-             f"{fmt_usd(check.projected)}, over the {fmt_usd(cap)} cap. Nothing downloaded.")
+        echo(
+            f"REFUSED: {fmt_usd(total)} spent + {fmt_usd(estimate)} estimate = "
+            f"{fmt_usd(check.projected)}, over the {fmt_usd(cap)} cap. Nothing downloaded."
+        )
         echo("Raise --cap only if you have checked your Databento credits.")
         return IngestResult("refused", estimate, total, cap)
 
@@ -269,8 +273,10 @@ def run_ingest(
             echo("Databento rejected the request; the estimate was taken back out of spend.json.")
         else:
             ledger.finish(index, "failed")
-            echo("Download failed. The estimate stays counted in spend.json (Databento may "
-                 "have billed some data). Edit total_usd by hand if you confirm no charge.")
+            echo(
+                "Download failed. The estimate stays counted in spend.json (Databento may "
+                "have billed some data). Edit total_usd by hand if you confirm no charge."
+            )
         raise
 
     summary = write_bars(data_dir, req.root, bars)

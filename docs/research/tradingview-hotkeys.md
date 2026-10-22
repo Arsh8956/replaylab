@@ -7,7 +7,7 @@ Source tiers used in this file:
 - **B**: on a TradingView domain but written by a community user.
 - **C**: third party site.
 
-A hotkey counts as CONFIRMED when at least one tier A source states it. CORROBORATED means no tier A source I could read, but several independent B and C sources agree.
+A hotkey counts as CONFIRMED when at least one tier A source states it. CORROBORATED means no tier A source I could read, but several B and C sources agree (whether they copied each other was not checked). CORROBORATED is still unconfirmed.
 
 ## 1. Question being answered
 
@@ -26,13 +26,13 @@ Which of the hotkeys in SPEC §7.2 marked *verify* (trend line, horizontal line,
 | Reset chart view | Alt+R | CORROBORATED, not tier A | Alt+R | Option+R (C only) | B1, C1, C2, C3, C4 |
 | Undo / redo | Ctrl+Z / Ctrl+Y | CONFIRMED | Ctrl+Z / Ctrl+Y | not stated by TradingView | S5 (A) |
 | Change symbol | type letters on chart | CONFIRMED | just start typing, a search box opens | same (B source says works on Mac) | S6 (A) |
-| Change interval | type a number on chart | CONFIRMED, with detail differences | type digits, press Enter | same | S7, S8 (A) |
+| Change interval | type a number on chart | CONFIRMED, with detail differences | type digits, press Enter | not stated (inferred same) | S7, S8 (A) |
 | Replay play / pause | Shift+Down | CONFIRMED | Shift+Down arrow | not stated | S9, S10 (A) |
 | Replay step forward | Shift+Right | CONFIRMED | Shift+Right arrow | not stated | S9, S10 (A) |
 | Replay step back | not in SPEC | no hotkey and no button found | none | none | S9, S10 (A) |
 | Replay select start bar | not in SPEC | no hotkey found | none | none | S10, S13 (A) |
 
-No hotkey in §7.2 is wrong. Differences from the spec are refinements (details in §4).
+No tier A source contradicts any §7.2 hotkey. Alt+R still has no tier A source, and no Mac key except the Option and Cmd+/ ones above is stated by TradingView. Other differences from the spec are refinements (details in §4).
 
 ### 2.1 Trend line (Alt+T) and horizontal line (Alt+H): CONFIRMED
 
@@ -103,13 +103,13 @@ Tier C only, not usable as fact: Alt+G go to date, Alt+N add text note, Shift+B 
 
 ### 2.10 Source read and rejected
 
-- supa.is "TradingView Keyboard Shortcuts" (3 Jul 2026): says it is "reconstructed from official docs and community consensus" and contradicts tier A on trend line, horizontal line, replay play/pause and replay step (plain T, H, Space, arrow keys, Ctrl+B). Not used for anything.
+- supa.is "TradingView Keyboard Shortcuts" (3 Jul 2026, URL not recorded): describes itself as rebuilt from official docs plus community agreement rather than from TradingView's list, and contradicts tier A on trend line, horizontal line, replay play/pause and replay step (plain T, H, Space, arrow keys, Ctrl+B). Not used for anything.
 
 ## 3. Inference (labeled, not sourced fact)
 
 1. **Mac mapping.** Alt maps to Option for every Alt combination, and Ctrl+Z / Ctrl+Y map to Cmd+Z / Cmd+Y, because S1 and S2 show Option for Alt and the library docs (S15) state the general rule. Not stated for Shift+Down / Shift+Right, where nothing changes anyway.
 2. **Bare number is minutes.** The help article's 125 example and "2 is 2 minutes" imply 60 is 60 minutes, which is one hour. So the SPEC's `60` is consistent with TradingView. `1h` and a bare `D` are accepted by TradingView according to tier C sources only. Accepting them in ReplayLab is harmless.
-3. **Alt+R is almost certainly right.** Five independent sources agree and none disagree, but one more check against TradingView's own dialog (Unknowns) closes it.
+3. **Alt+R is probably right.** Five sources (one tier B, four tier C) agree and none I read disagree, but their independence is not established. It stays UNCONFIRMED until a check against TradingView's own dialog (Unknowns) closes it.
 4. **Implementation.** On a Mac, Option+letter types a special character, so `event.key` is wrong there; match on `event.code` (KeyT, KeyH, KeyR). Call `preventDefault` on all of these. Hotkeys stay ignored while an input has focus (already in §7.2).
 5. **No step back.** TradingView has none in public docs, and our no lookahead rule gains nothing from adding one. Don't invent a replay rewind key.
 
@@ -118,7 +118,7 @@ Tier C only, not usable as fact: Alt+G go to date, Alt+N add text note, Shift+B 
 1. Replace the "TradingView, verify" labels in §7.2 with the verdicts below, and add a Mac column.
 2. Add the Mac mapping rule: Alt becomes Option, Ctrl becomes Cmd for undo and redo. Match Alt combos by key code.
 3. Measure: spell out the behavior. Hold Shift, click the start point, click the end point.
-4. Interval box (§7.1 text): a bare number is minutes (`5`, `60`, `125`), suffix D, W, M for days, weeks, months. Keep `1h` and `D` as accepted extras, labeled ours. Comma opening the interval box is tier C only, so mark it optional.
+4. Interval box (§7.1 text): a bare number is minutes (`5`, `60`, `125`), suffix D, W, M for days, weeks, months. Keep `1h` and `D` as accepted extras, labeled unconfirmed (only tier C says TradingView accepts them). Comma opening the interval box is tier C only, so mark it optional.
 5. Shortcuts dialog: open with Ctrl+/ (Cmd+/ on Mac), which TradingView uses, as well as `?` (ours).
 6. Optional adds from tier A, all small and mapped to controls the spec already has: Ctrl+Alt+H hide all drawings (our "hide all" button), Alt+L log scale and Alt+P percent scale (our footer toggles), Alt+V vertical line and Alt+C cross line for M2 drawing tools.
 7. Bar Replay: keep Shift+Down and Shift+Right as written. Don't add step back or select start hotkeys.
@@ -126,18 +126,20 @@ Tier C only, not usable as fact: Alt+G go to date, Alt+N add text note, Shift+B 
 
 ### Proposed SPEC §7.2 table
 
+Mac keys marked * are not stated by TradingView; they are inferred and UNCONFIRMED.
+
 | Action | Windows / Linux | Mac | Status |
 |---|---|---|---|
-| Replay play / pause | Shift+↓ | Shift+↓ | TradingView, confirmed (S9, S10) |
-| Replay step forward | Shift+→ | Shift+→ | TradingView, confirmed (S9, S10) |
-| Change symbol | start typing on the chart | same | TradingView, confirmed (S6) |
-| Change interval | type a number on the chart, Enter (`5`, `60`, `1D`, `1W`; `1h` and `D` accepted) | same | TradingView, confirmed (S7, S8); `1h` and `D` ours |
+| Replay play / pause | Shift+↓ | Shift+↓ * | TradingView, confirmed (S9, S10) |
+| Replay step forward | Shift+→ | Shift+→ * | TradingView, confirmed (S9, S10) |
+| Change symbol | start typing on the chart | same * | TradingView, confirmed (S6); Mac per one tier B post (B3) |
+| Change interval | type a number on the chart, Enter (`5`, `60`, `1D`, `1W`; bare number = minutes) | same * | TradingView, confirmed (S7, S8); `1h` and bare `D` also accepted, UNCONFIRMED (tier C only) |
 | Trend line | Alt+T | Option+T | TradingView, confirmed (S1) |
 | Horizontal line | Alt+H | Option+H | TradingView, confirmed (S1) |
 | Rectangle | Alt+Shift+R | Option+Shift+R | TradingView, confirmed (S2) |
-| Measure | hold Shift, click start, click end | same | TradingView, confirmed (S3, S4) |
-| Reset chart view | Alt+R | Option+R | TradingView, corroborated (B1, C1 to C4); one Arsh check pending |
-| Undo / redo | Ctrl+Z / Ctrl+Y | Cmd+Z / Cmd+Y | Windows confirmed (S5); Mac inferred |
+| Measure | hold Shift, click start, click end | same * | TradingView, confirmed (S3, S4) |
+| Reset chart view | Alt+R | Option+R | UNCONFIRMED: tier B and C only (B1, C1 to C4); Arsh checks TradingView's Ctrl+/ list |
+| Undo / redo | Ctrl+Z / Ctrl+Y | Cmd+Z / Cmd+Y * | Windows confirmed (S5)
 | Hide / show all drawings (optional) | Ctrl+Alt+H | Cmd+Option+H | TradingView, confirmed (S11) |
 | Log / percent scale (optional) | Alt+L / Alt+P | Option+L / Option+P | TradingView, confirmed (S1) |
 | Shortcuts dialog | Ctrl+/ and ? | Cmd+/ and ? | Ctrl+/ TradingView (S2); `?` ours |
@@ -187,3 +189,7 @@ Tier C, third party:
 - C5 How2Shout, "How to Delete Multiple Drawings on TradingView": https://www.how2shout.com/?p=81133
 
 Not fetched or not readable: TradingView's /support/shortcuts/ page (tables did not render), Scribd copies (script wall), the Wayback Machine (blocked), friendofthetrend.com (robots disallow, not retrieved).
+
+## Review (research-motherhead, 2026-10-22)
+
+PASS after edits. Edits: Mac keys TradingView doesn't state are now marked inferred / UNCONFIRMED in §2.0 and the proposed table; Alt+R and `1h` / bare `D` relabeled UNCONFIRMED instead of "corroborated" or "ours"; "no hotkey is wrong" narrowed to "no tier A source contradicts"; the "independent sources" claim softened; one verbatim third party quote in §2.10 paraphrased. Nothing was cut for source or clean room reasons. No patent issue (no session window marking proposed). Alt+V / Alt+C are not approved for §7.2: vertical and cross line tools aren't in the SPEC's v1 or M2 tool lists.
