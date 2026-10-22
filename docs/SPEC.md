@@ -255,28 +255,35 @@ Example lines: 1 NQ long at 21016.75, SL 12 pts (48 ticks) = -$240.00, TP 24 pts
    - Journal: trade table (entry time, side, qty, entry, exit, ticks, net $, R, reason) with inline edits for setup, tags, rating, followed rules, notes; filter by setup; export CSV.
    - Stats: KPI tiles (net $, win rate, profit factor, expectancy $, avg R, max drawdown), equity curve, breakdown tables (setup, session, weekday, side). Every number comes from `computeStats`.
 
-**Symbol search**: opens from the symbol button or when you start typing letters on the chart; filters by symbol and name; Enter picks. **Interval box**: typing a number on the chart opens it (`5` = 5m, `60` or `1h` = 1h, `D` = 1D), Enter applies. Both are TradingView behavior.
+**Symbol search**: opens from the symbol button or when you start typing letters on the chart; filters by symbol and name; Enter picks. **Interval box**: typing a number on the chart opens it, Enter applies. A bare number is minutes (`5` = 5m, `60` = 1h, `240` = 4h) and a `D` suffix is days (`1D`); both are TradingView behavior. An `h` suffix (`1h`, `4h`) and a bare `D` are also accepted: ours, since only third party sources say TradingView takes them. Only values that map to a v1 `Timeframe` apply; anything else (`125`, `1W`) shows "interval not available" and keeps the current one.
 
 **New session dialog**: market, data source, start date/time (or pick on chart), account size, commission per side, slippage ticks.
 
 ### 7.2 Hotkeys
 
-Match TradingView wherever it has a default, so muscle memory carries over. Rows marked *verify* get checked against TradingView's own hotkey list by recon-analyst before the UI build; if TradingView differs, match TradingView. All hotkeys are ignored while typing in an input, shown in tooltips, and listed in a `?` shortcuts dialog.
+Match TradingView wherever it has a default, so muscle memory carries over. Evidence: `docs/research/tradingview-hotkeys.md`. All hotkeys are ignored while typing in an input, shown in tooltips, and listed in the shortcuts dialog. On Mac, Alt becomes Option and Ctrl becomes Cmd. Match Alt / Option combos on `event.code` (KeyT, KeyH, KeyR...), not `event.key`, because Option+letter types a special character on Mac; call `preventDefault` on every hotkey we handle.
 
-| Action | Key | Source |
-|---|---|---|
-| Replay play / pause | Shift+↓ | TradingView Bar Replay |
-| Replay step forward | Shift+→ | TradingView Bar Replay |
-| Change symbol | start typing letters on the chart | TradingView |
-| Change timeframe | start typing a number on the chart | TradingView |
-| Trend line | Alt+T | TradingView, verify |
-| Horizontal line | Alt+H | TradingView, verify |
-| Rectangle | Alt+Shift+R | TradingView, verify |
-| Measure | Shift+click on the chart | TradingView, verify |
-| Reset chart view | Alt+R | TradingView, verify |
-| Undo / redo | Ctrl+Z / Ctrl+Y | TradingView |
-| Buy market / Sell market / Flatten | Alt+Shift+B / Alt+Shift+S / Alt+Shift+X | ours, configurable (plain letters belong to symbol search) |
-| Cancel working order, exit tool, close dialog | Esc | ours |
+| Action | Win / Linux | Mac | Source |
+|---|---|---|---|
+| Replay play / pause | Shift+↓ | Shift+↓* | TradingView |
+| Replay step forward | Shift+→ | Shift+→* | TradingView |
+| Change symbol | type letters on chart | same* | TradingView |
+| Change interval | type a number, Enter (`5`, `60` = minutes; `1D`) | same* | TradingView; `1h`, `4h`, bare `D` aliases ours (see §7.1) |
+| Trend line | Alt+T | Option+T | TradingView |
+| Horizontal line | Alt+H | Option+H | TradingView |
+| Rectangle | Alt+Shift+R | Option+Shift+R | TradingView |
+| Measure | hold Shift, click start, click end | same* | TradingView |
+| Reset chart view | Alt+R | Option+R | UNCONFIRMED |
+| Undo / redo | Ctrl+Z / Ctrl+Y | Cmd+Z / Cmd+Y* | TradingView; Ctrl+Shift+Z / Cmd+Shift+Z also redo, ours |
+| Hide all drawings (optional) | Ctrl+Alt+H | Cmd+Option+H | TradingView |
+| Log / % scale (optional) | Alt+L / Alt+P | Option+L / Option+P | TradingView |
+| Shortcuts dialog | Ctrl+/, ? | Cmd+/, ? | TradingView; `?` ours |
+| Buy / Sell market / Flatten | Alt+Shift+B / S / X | Option+Shift+B / S / X | ours, configurable (plain letters belong to symbol search) |
+| Cancel order / exit tool / close dialog | Esc | Esc | ours |
+
+\*Inferred, unconfirmed.
+
+Rows and Mac keys marked UNCONFIRMED or * are checked by Arsh in his own TradingView (Ctrl+/ on Windows, Cmd+/ on Mac). If TradingView differs, we match TradingView and update this table. No replay step back or select start hotkey: TradingView's public docs have none, so we don't invent one.
 
 ### 7.3 Phone width (390px)
 

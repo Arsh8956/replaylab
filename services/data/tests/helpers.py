@@ -15,6 +15,8 @@ import databento
 import databento_dbn as dbn
 import pandas as pd
 
+from replaylab_data.store import empty_bars
+
 NS = 1_000_000_000
 
 
@@ -25,6 +27,8 @@ def epoch(text: str) -> int:
 
 def make_bars(start: int, count: int, *, step: int = 60, base: float = 21000.0) -> pd.DataFrame:
     """Deterministic Bar frame: times start, start+step, ... prices on a 0.25 grid."""
+    if count == 0:
+        return empty_bars()
     rows = []
     for i in range(count):
         o = base + (i % 10) * 0.25

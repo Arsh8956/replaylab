@@ -179,17 +179,15 @@ def parse_time(raw_time: str, raw_date: str | None, zone: ZoneInfo) -> int:
         return int(parsed.astimezone(UTC).timestamp())
 
     local = parsed.replace(tzinfo=zone)
-    # Ambiguous (clock repeats) when both folds give different offsets.
-    first = local.replace(fold=0).utcoffset()
-    second = local.replace(fold=1).utcoffset()
-    if first != second:
+    as_utc = local.astimezone(UTC)
+    # Nonexistent (clock skips forward): the round trip does not return the same wall time.
+    if as_utc.astimezone(zone).replace(tzinfo=None) != parsed:
+        raise ValueError(f"{text} does not exist in {zone.key} (clocks go forward)")
+    # Ambiguous (clock repeats): the two folds map to different UTC offsets.
+    if local.replace(fold=0).utcoffset() != local.replace(fold=1).utcoffset():
         raise ValueError(
             f"{text} is ambiguous in {zone.key} (clocks go back); use an export with offsets"
         )
-    as_utc = local.astimezone(UTC)
-    # Nonexistent (clock skips) when the round trip does not return the same wall time.
-    if as_utc.astimezone(zone).replace(tzinfo=None) != parsed:
-        raise ValueError(f"{text} does not exist in {zone.key} (clocks go forward)")
     return int(as_utc.timestamp())
 
 
