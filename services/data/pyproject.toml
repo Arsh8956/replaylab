@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "replaylab-data"
+version = "0.1.0"
+description = "ReplayLab data service: Databento ingest, CSV import, Parquet bar store, FastAPI bars endpoint"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "databento>=0.50",
+  "pandas>=2.1",
+  "pyarrow>=14",
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "ruff>=0.5",
+  "httpx>=0.27",
+]
+
+[project.scripts]
+replaylab-data = "replaylab_data.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+  # databento 0.88 calls DataFrame.set_index(inplace=True), which pandas 3.1 warns about
+  "ignore:The inplace keyword in DataFrame.set_index",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
